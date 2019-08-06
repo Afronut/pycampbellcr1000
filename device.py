@@ -101,13 +101,19 @@ class CR1000(object):
         # remove transmission time
         return nsec_to_time(msg['Time']) - send_time
 
+    def total_seconds(self, minutes, seconds, hour):
+        """Total seconds in the duration."""
+        return seconds + minutes*60 + hour*3600
+
     def settime(self, dtime):
         '''Sets the given `dtime` and returns the new current datetime'''
         LOGGER.info('Try settime')
         current_time = self.gettime()
         self.ping_node()
         diff = dtime - current_time
-        diff = diff.total_seconds()
+        date = str(diff).split(":")
+        print(date)
+        diff = self.total_seconds(int(date[1]), diff.seconds, int(date[0]))
         # settime (OldTime in response)
         hdr, msg, sdt1 = self.send_wait(self.pakbus.get_clock_cmd((diff, 0)))
         # gettime (NewTime in response)
